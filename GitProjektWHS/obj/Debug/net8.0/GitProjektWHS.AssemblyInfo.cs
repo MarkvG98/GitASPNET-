@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GitProjektWHS")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7319704b964b3dd5232c3681c3ba4227c4b0b79b")]
 [assembly: System.Reflection.AssemblyProductAttribute("GitProjektWHS")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GitProjektWHS")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

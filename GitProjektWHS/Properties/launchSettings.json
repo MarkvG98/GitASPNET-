@@ -13,7 +13,7 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "launchUrl": "swagger",
+      "launchUrl": "gitlibrary",
       "applicationUrl": "http://localhost:5049",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
@@ -23,7 +23,7 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "launchUrl": "swagger",
+      "launchUrl": "gitlibrary",
       "applicationUrl": "https://localhost:7158;http://localhost:5049",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

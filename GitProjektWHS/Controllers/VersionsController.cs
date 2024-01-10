@@ -16,16 +16,24 @@ namespace GitProjektWHS.Controllers
         }
        
         [HttpPost] //create
-        public IActionResult CreateVersionsObjekt(VersionsDatei piObjekt)
+        public IActionResult CreateVersionsDatei(VersionsDatei piDatei)
         {
-            _db.Datei.Add(piObjekt);
+            _db.Datei.Add(piDatei);
             _db.SaveChanges();
 
-            return CreatedAtAction("GetObjekt", new { id = piObjekt.Id}, piObjekt);
+            return CreatedAtAction("GetDatei", new { id = piDatei.Id}, piDatei);
+        }
+        [HttpPost]
+        public IActionResult CreateVersionsObjekt(VersionsObjekt piVersionObjekt)
+        {
+            _db.Versions.Add(piVersionObjekt);
+            _db.SaveChanges();
+
+            return CreatedAtAction("GetObject",new { id = piVersionObjekt.ID, piVersionObjekt});
         }
 
         [HttpGet]
-        public IActionResult GetVersionsObjekt(int piId)
+        public IActionResult GetVersionsDatei(int piId)
         {
             var versionsDateiFromDb = _db.Datei.SingleOrDefault(b => b.Id == piId);
 
@@ -35,9 +43,20 @@ namespace GitProjektWHS.Controllers
             }
             return Ok(versionsDateiFromDb);
         }
+        [HttpGet]
+        public IActionResult GetVersionsObjekt(int piId)
+        {
+            var versionsObjektFromDb = _db.Versions.SingleOrDefault(b => b.ID == piId);
+
+            if (versionsObjektFromDb == null)
+            {
+                return NotFound();
+            }
+            return Ok(versionsObjektFromDb);
+        }
 
         [HttpPut]
-        public IActionResult UpdateVersionObjekt(VersionsDatei piObjekt)
+        public IActionResult UpdateVersionsDatei(VersionsDatei piObjekt)
         {
             var versionsDateiFromDb = _db.Datei.SingleOrDefault(b => b.Id == piObjekt.Id);
             if (versionsDateiFromDb == null)
@@ -50,9 +69,22 @@ namespace GitProjektWHS.Controllers
 
             return Ok(piObjekt.Lock ? "Objekt geperrt" : "Objekt entsperrt");
         }
+        [HttpPut]
+        public IActionResult UpdateVersionsObjekt(VersionsObjekt piObjekt)
+        {
+            var versionsObjektFromDb = _db.Versions.SingleOrDefault(b => b.ID == piObjekt.ID);
+            if (versionsObjektFromDb == null)
+            {
+                return NotFound();
+            }
+            versionsObjektFromDb = piObjekt;
 
+            _db.SaveChanges();
+
+            return Ok("Objekt" + ": " + piObjekt.ID.ToString() + " " +"wurde aktualisiert");
+        }
         [HttpDelete]
-        public IActionResult DeleteVersionsObjekt(VersionsDatei piObjekt)
+        public IActionResult DeleteVersionsDatei(VersionsDatei piObjekt)
         {
             var versionsDateiFromDb = _db.Datei.SingleOrDefault(b => b.Id == piObjekt.Id);
             if (versionsDateiFromDb == null)

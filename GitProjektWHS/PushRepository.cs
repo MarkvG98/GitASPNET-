@@ -33,8 +33,9 @@ namespace GitProjektWHS
                         ID = VersionsObjektID,
                         DateiID = VersionsDateiID,
                         Filename = file.Name,
-                        Inhalt = Inhalt
-                    }) ;
+                        Inhalt = Inhalt,
+                        Version = VersionsObjektID++
+                    });
             }
             return versions_List;
         }

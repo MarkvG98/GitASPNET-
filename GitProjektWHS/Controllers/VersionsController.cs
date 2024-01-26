@@ -14,25 +14,25 @@ namespace GitProjektWHS.Controllers
         {
             _db = context;
         }
-       
-        [HttpPost] //create
+
+        [HttpPost("VersionsDatei/{Datei}")]
         public IActionResult CreateVersionsDatei(VersionsDatei piDatei)
         {
             _db.Datei.Add(piDatei);
             _db.SaveChanges();
 
-            return CreatedAtAction("GetDatei", new { id = piDatei.Id}, piDatei);
+            return CreatedAtAction(nameof(CreateVersionsDatei), new { id = piDatei.Id}, piDatei);
         }
-        [HttpPost]
+        [HttpPost("VersionsObjekt/{Objekt}")]
         public IActionResult CreateVersionsObjekt(VersionsObjekt piVersionObjekt)
         {
             _db.Versions.Add(piVersionObjekt);
             _db.SaveChanges();
 
-            return CreatedAtAction("GetObject",new { id = piVersionObjekt.ID, piVersionObjekt});
+            return CreatedAtAction(nameof(CreateVersionsObjekt), new { id = piVersionObjekt.ID }, piVersionObjekt);
         }
 
-        [HttpGet]
+        [HttpGet("VersionsDatei/{id}")]
         public IActionResult GetVersionsDatei(int piId)
         {
             var versionsDateiFromDb = _db.Datei.SingleOrDefault(b => b.Id == piId);
@@ -43,7 +43,7 @@ namespace GitProjektWHS.Controllers
             }
             return Ok(versionsDateiFromDb);
         }
-        [HttpGet]
+        [HttpGet("VersionsObjekt/{id}")]
         public IActionResult GetVersionsObjekt(int piId)
         {
             var versionsObjektFromDb = _db.Versions.SingleOrDefault(b => b.ID == piId);
@@ -55,7 +55,7 @@ namespace GitProjektWHS.Controllers
             return Ok(versionsObjektFromDb);
         }
 
-        [HttpPut]
+        [HttpPut("VersionsDatei/{Datei}")]
         public IActionResult UpdateVersionsDatei(VersionsDatei piObjekt)
         {
             var versionsDateiFromDb = _db.Datei.SingleOrDefault(b => b.Id == piObjekt.Id);
@@ -69,7 +69,7 @@ namespace GitProjektWHS.Controllers
 
             return Ok(piObjekt.Lock ? "Objekt geperrt" : "Objekt entsperrt");
         }
-        [HttpPut]
+        [HttpPut("VersionsObjekt/{Objekt}")]
         public IActionResult UpdateVersionsObjekt(VersionsObjekt piObjekt)
         {
             var versionsObjektFromDb = _db.Versions.SingleOrDefault(b => b.ID == piObjekt.ID);
@@ -81,9 +81,9 @@ namespace GitProjektWHS.Controllers
 
             _db.SaveChanges();
 
-            return Ok("Objekt" + ": " + piObjekt.ID.ToString() + " " +"wurde aktualisiert");
+            return Ok("Objekt" + ": " + piObjekt.ID.ToString() + " " + "wurde aktualisiert");
         }
-        [HttpDelete]
+        [HttpDelete("VersionsDatei/{VersionsDatei}")]
         public IActionResult DeleteVersionsDatei(VersionsDatei piObjekt)
         {
             var versionsDateiFromDb = _db.Datei.SingleOrDefault(b => b.Id == piObjekt.Id);

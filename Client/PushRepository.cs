@@ -1,15 +1,12 @@
-﻿using GitProjektWHS.Controllers;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Update.Internal;
-
-namespace GitProjektWHS
+﻿namespace GitProjektWHS
 {
     public class PushRepository
     {
-        public void StartPush(string pisourceDirectory, VersionsContext dbContext)
-        {
-            CreateAndUpdate_Caller(ReadAllFiles(pisourceDirectory), dbContext);
-        }
+        //TODO: Implementieren ohne auf GitProjektWHS zuzugreifen
+        //public void StartPush(string pisourceDirectory, VersionsContext dbContext)
+        //{
+        //    CreateAndUpdate_Caller(ReadAllFiles(pisourceDirectory), dbContext);
+        //}
 
         private List<VersionsObjekt> ReadAllFiles(string pisourceDirectory)
         {
@@ -40,25 +37,26 @@ namespace GitProjektWHS
             return versions_List;
         }
 
-        private void CreateAndUpdate_Caller(List<VersionsObjekt> piVersionsObjektList, VersionsContext dbContext)
-        {
-            var _versionsController = new VersionsController(dbContext);
-            List<VersionsObjekt> update_List = new List<VersionsObjekt>();
-            List<VersionsObjekt> create_List = new List<VersionsObjekt>();
-            foreach (var versionsObjekt in piVersionsObjektList)
-            {
-                var Objekt = (VersionsObjekt)_versionsController.GetVersionsObjekt(versionsObjekt.ID);
+        //TODO: Implementieren ohne auf GitProjektWHS zuzugreifen
+        //private void CreateAndUpdate_Caller(List<VersionsObjekt> piVersionsObjektList, VersionsContext dbContext)
+        //{
+        //    var _versionsController = new VersionsController(dbContext);
+        //    List<VersionsObjekt> update_List = new List<VersionsObjekt>();
+        //    List<VersionsObjekt> create_List = new List<VersionsObjekt>();
+        //    foreach (var versionsObjekt in piVersionsObjektList)
+        //    {
+        //        var Objekt = (VersionsObjekt)_versionsController.GetVersionsObjekt(versionsObjekt.ID);
 
-                if (Objekt != null)
-                {
-                    _versionsController.UpdateVersionsObjekt(versionsObjekt);
-                }
-                else
-                {
-                    _versionsController.CreateVersionsDatei(new VersionsDatei { Id = versionsObjekt.DateiID , Lock = false });// hier ein Get HighestID, Wenn keine vorhanden und autoEintrag
-                    _versionsController.CreateVersionsObjekt(versionsObjekt);
-                }                
-            }
-        }   
+        //        if (Objekt != null)
+        //        {
+        //            _versionsController.UpdateVersionsObjekt(versionsObjekt);
+        //        }
+        //        else
+        //        {
+        //            _versionsController.CreateVersionsDatei(new VersionsDatei { Id = versionsObjekt.DateiID , Lock = false });// hier ein Get HighestID, Wenn keine vorhanden und autoEintrag
+        //            _versionsController.CreateVersionsObjekt(versionsObjekt);
+        //        }                
+        //    }
+        //}   
     }
 }

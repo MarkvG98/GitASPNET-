@@ -15,6 +15,15 @@ Microsoft SQL Server installieren
 
 ## Usage
 
-```
+### Versionsverwaltung
+```bash
 # Hier CLI Befehle auflisten
+```
+### Datenbank
+
+In der Paket-Manager-Konsole:
+
+```bash
+# Datenbankstruktur aktualisieren
+Update-Database
 ```

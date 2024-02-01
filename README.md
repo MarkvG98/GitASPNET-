@@ -24,6 +24,9 @@ Microsoft SQL Server installieren
 In der Paket-Manager-Konsole:
 
 ```bash
-# Datenbankstruktur aktualisieren
+# Datenbankstrukturänderungen erfassen
+Add-Migration
+
+# Datenbankstrukturänderungen anwenden 
 Update-Database
 ```

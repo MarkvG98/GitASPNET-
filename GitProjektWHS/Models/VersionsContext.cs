@@ -1,7 +1,7 @@
 ﻿using Commons.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace GitProjektWHS
+namespace GitProjektWHS.Models
 {
     public class VersionsContext : DbContext 
     {

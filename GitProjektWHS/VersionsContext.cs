@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Commons.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace GitProjektWHS
 {
@@ -8,7 +9,7 @@ namespace GitProjektWHS
         {
                 
         }
-        public  DbSet<VersionsDatei> Datei { get; set; }
-        public DbSet<VersionsObjekt> Versions { get; set; }
+        public  DbSet<FileObject> Dateien { get; set; }
+        public DbSet<VersionObject> Versionen { get; set; }
     }
 }

@@ -1,7 +1,5 @@
 using GitProjektWHS;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.InMemory;
-
 
 var builder = WebApplication.CreateBuilder(args);
 

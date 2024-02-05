@@ -1,4 +1,4 @@
-using GitProjektWHS;
+using GitProjektWHS.Models;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

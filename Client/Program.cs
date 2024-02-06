@@ -11,7 +11,7 @@ namespace Client
         static void ShowVersion(VersionObject version)
         {
             Console.WriteLine($"ID: {version.Id}\tDateien: " +
-                $"{version.FileIds}\tTag: " + $"{version.Tag}");
+                $"{version.FileId}\tTag: " + $"{version.Tag}");
         }
 
         static async Task<Uri> CreateVersionAsync(VersionObject version)
@@ -70,8 +70,7 @@ namespace Client
                 // Create a new version
                 VersionObject version = new VersionObject
                 {
-                    Id = 1,
-                    FileIds = [0]
+                    Id = 1
                 };
 
                 var url = await CreateVersionAsync(version);

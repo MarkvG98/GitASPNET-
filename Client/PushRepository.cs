@@ -52,10 +52,10 @@ namespace GitProjektWHS
         //        }
         //        else
         //        {
-        //            _versionsController.CreateVersionsDatei(new VersionsDatei { Id = VersionObject.DateiID , Lock = false });// hier ein Get HighestID, Wenn keine vorhanden und autoEintrag
+        //            _versionsController.CreateVersionsDatei(new VersionsDatei { Id = VersionObject.DateiID, Lock = false });// hier ein Get HighestID, Wenn keine vorhanden und autoEintrag
         //            _versionsController.CreateVersionObject(VersionObject);
-        //        }                
+        //        }
         //    }
-        //}   
+        //}
     }
 }

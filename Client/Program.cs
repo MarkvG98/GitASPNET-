@@ -52,10 +52,68 @@ namespace Client
                 $"api/Versions/{id}");
             return response.StatusCode;
         }
+        static void ResetVersion()
+        {
+            Console.WriteLine("Gib die Versionsdatei an");
+            var VersionsID = Console.ReadLine();
+            Console.WriteLine("Gib die Version an");
+            var Version = Console.ReadLine();
+
+            Console.WriteLine("Du Möchtest Datei {0} auf Version {1} " +
+                "zurücksetzen? Bitte mit J bestätigen", VersionsID, Version);
+
+            if (Console.ReadLine() == "J")
+            {
+                //Mache Reset
+                Console.WriteLine("Reset erfolgreich");
+
+            }
+            else
+            {
+                Console.WriteLine("Abbruch");
+            }
+
+        }
 
         static void Main()
         {
-            RunAsync().GetAwaiter().GetResult();
+            // RunAsync().GetAwaiter().GetResult();
+
+            Console.WriteLine(@"Hallo zum Git ""help"" für hilfe eingeben");
+
+            while (true)
+            {
+                GetUserCommand();
+            }
+
+        }
+
+        private static void GetUserCommand()
+        {
+            var userIput = Console.ReadLine();
+            VersionObject version = new VersionObject
+            {
+                Id = 1
+            };
+
+            switch (userIput)
+            {
+                case "DeleteVersionAsync":
+                    CreateVersionAsync(version);
+                    break;
+                case "UpdateVersionAsync":
+                    UpdateVersionAsync(version);
+                    break;
+                case "Reset":
+                    ResetVersion();
+                    break;
+                case "help":
+                    Console.WriteLine("hier alle Methoden nennen");
+                    break;
+                default:
+                    Console.WriteLine("Ungültige Eingabe");
+                    break;
+            }
         }
 
         static async Task RunAsync()

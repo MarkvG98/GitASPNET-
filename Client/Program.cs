@@ -60,7 +60,7 @@ namespace Client
 
         static async Task RunAsync()
         {
-            client.BaseAddress = new Uri("http://localhost:5049/");
+            client.BaseAddress = new Uri("https://localhost:7158/");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));

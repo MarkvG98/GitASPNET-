@@ -79,7 +79,7 @@ namespace Client
         {
             // RunAsync().GetAwaiter().GetResult();
 
-            Console.WriteLine(@"Hallo zum Git ""help"" für hilfe eingeben");
+            Console.WriteLine("Hallo zum GitProjektWHS! Für eine Liste aller Befehle bitte 'help' eingeben.");
 
             HandleUserInput();
 
@@ -87,28 +87,45 @@ namespace Client
 
         private static void HandleUserInput()
         {
-            var userIput = Console.ReadLine();
+            var userInput = Console.ReadLine();
             VersionObject version = new VersionObject
             {
                 Id = 1
             };
 
-            switch (userIput)
+            switch (userInput)
             {
-                case "DeleteVersionAsync":
-                    CreateVersionAsync(version);
+                case "savefile":
+                    // Speichern einer Datei in einer neuen Version
                     break;
-                case "UpdateVersionAsync":
-                    UpdateVersionAsync(version);
+                case "getfile":
+                    // Holen der neuesten Version einer Datei vom Server
                     break;
-                case "Reset":
-                    ResetVersion();
+                case "getfilewithlock":
+                    // Holen der neuesten Version einer Datei mit Sperren vom Server
+                    break;
+                case "addfile":
+                    // Einfügen einer neuen Datei
+                    break;
+                case "resetfile":
+                    // Zurücksetzen  einer Datei auf eine alte Version
+                    break;
+                case "createtag":
+                    // Kennzeichnen einer Version mit einem Tag
                     break;
                 case "help":
-                    Console.WriteLine("hier alle Methoden nennen");
+                    // Befehle auflisten
+                    Console.WriteLine("Befehle:\n" +
+                                      "  savefile         Speichern einer Datei in einer neuen Version\n" +
+                                      "  getfile          Holen der neuesten Version einer Datei vom Server\n" +
+                                      "  getfilewithlock  Holen der neuesten Version einer Datei mit Sperren vom Server\n" +
+                                      "  addfile          Einfügen einer neuen Datei\n" +
+                                      "  resetfile        Zurücksetzen  einer Datei auf eine alte Version\n" +
+                                      "  createtag        Kennzeichnen einer Version mit einem Tag\n" +
+                                      "  help             Befehle auflisten");
                     break;
                 default:
-                    Console.WriteLine("Ungültige Eingabe");
+                    Console.WriteLine("Unbekannter Befehl. Für eine Liste aller Befehle bitte 'help' eingeben.");
                     break;
             }
 

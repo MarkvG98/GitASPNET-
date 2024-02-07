@@ -92,7 +92,7 @@ namespace Client
         static async Task<FileObject> UpdateFileAsync(FileObject file)
         {
             HttpResponseMessage response = await client.PutAsJsonAsync(
-                $"api/Versions/{file.Id}", file);
+                $"api/Files/{file.Id}", file);
             response.EnsureSuccessStatusCode();
 
             // Deserialize the updated product from the response body.
@@ -140,18 +140,17 @@ namespace Client
 
             Console.WriteLine("Hallo zum GitProjektWHS! Für eine Liste aller Befehle bitte 'help' eingeben.");
 
-            HandleUserInput();
-
+            Task.WaitAll(HandleUserInput());
         }
 
-        private static void HandleUserInput()
+        private async static Task HandleUserInput()
         {
             var userInput = Console.ReadLine();
 
             switch (userInput)
             {
                 case "savefile":
-                    SaveFile();
+                    await SaveFile();
                     break;
                 case "getfile":
                     // Holen der neuesten Version einer Datei vom Server
@@ -160,7 +159,7 @@ namespace Client
                     // Holen der neuesten Version einer Datei mit Sperren vom Server
                     break;
                 case "addfile":
-                    AddFile();
+                    await AddFile();
                     break;
                 case "resetfile":
                     // Zurücksetzen  einer Datei auf eine alte Version
@@ -184,7 +183,7 @@ namespace Client
                     break;
             }
 
-            HandleUserInput();
+            await HandleUserInput();
         }
 
         static async Task SaveFile()
@@ -201,13 +200,13 @@ namespace Client
                 {
                     var remoteVersion = await GetVersionAsync("api/Versions/" + remoteFile.VersionIds.Max());
 
-                    Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2})", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id);
+                    Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2}", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id);
                 }
 
-                Console.WriteLine("Gib bitte den Pfad der Datei an, die du als neue Version hochladen möchtest.");
-
                 var fileId = Console.ReadLine();
-                var file = await GetFileAsync("api/Files" + fileId);
+                var file = await GetFileAsync("api/Files/" + fileId);
+
+                Console.WriteLine("Gib bitte den Pfad der Datei an, die du als neue Version hochladen möchtest.");
 
                 VersionObject newVersion = new VersionObject
                 {
@@ -220,16 +219,17 @@ namespace Client
                 var version = await GetVersionAsync(url.PathAndQuery);
 
                 var versionIds = file.VersionIds;
-                versionIds[versionIds.Length] = version.Id;
+                versionIds.Add(version.Id);
 
                 FileObject updatedFile = new FileObject
                 {
+                    Id = file.Id,
                     VersionIds = versionIds
                 };
 
-                file = await UpdateFileAsync(file);
+                file = await UpdateFileAsync(updatedFile);
 
-                Console.WriteLine("Für die Datei {0} (ID: {1}) wurde in der neuen Version {2} hochgeladen.", version.Filename, file.Id, version.Id);
+                Console.WriteLine("Für die Datei {0} (Datei-ID: {1}) wurde in der neuen Version {2} hochgeladen.", version.Filename, file.Id, version.Id);
             }
             else
             {
@@ -263,7 +263,7 @@ namespace Client
             url = await CreateFileAsync(newFile);
             var file = await GetFileAsync(url.PathAndQuery);
 
-            Console.WriteLine("Die Datei {0} (ID: {1}) wurde in der Version {2} hochgeladen.", version.Filename, file.Id, version.Id);
+            Console.WriteLine("Die Datei {0} (Datei-ID: {1}) wurde in der Version {2} hochgeladen.", version.Filename, file.Id, version.Id);
         }
     }
 }

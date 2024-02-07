@@ -2,6 +2,7 @@
 using Commons.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GitProjektWHS.Controllers
 {
@@ -64,7 +65,7 @@ namespace GitProjektWHS.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(version);
         }
 
         // POST: api/Versions

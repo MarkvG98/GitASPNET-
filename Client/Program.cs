@@ -162,10 +162,10 @@ namespace Client
                     await AddFile();
                     break;
                 case "resetfile":
-                    // Zurücksetzen  einer Datei auf eine alte Version
+                    // Zurücksetzen einer Datei auf eine alte Version
                     break;
                 case "createtag":
-                    // Kennzeichnen einer Version mit einem Tag
+                    await CreateTag();
                     break;
                 case "help":
                     // Befehle auflisten
@@ -174,7 +174,7 @@ namespace Client
                                       "  getfile          Holen der neuesten Version einer Datei vom Server\n" +
                                       "  getfilewithlock  Holen der neuesten Version einer Datei mit Sperren vom Server\n" +
                                       "  addfile          Einfügen einer neuen Datei\n" +
-                                      "  resetfile        Zurücksetzen  einer Datei auf eine alte Version\n" +
+                                      "  resetfile        Zurücksetzen einer Datei auf eine alte Version\n" +
                                       "  createtag        Kennzeichnen einer Version mit einem Tag\n" +
                                       "  help             Befehle auflisten");
                     break;
@@ -190,12 +190,13 @@ namespace Client
         {
             // Speichern einer Datei in einer neuen Version
 
+            // Hole alle Dateien vom Server und überprüfe, ob es überhautp welche gibt
             var remoteFiles = await GetFilesAsync();
-
             if (remoteFiles.Length != 0)
             {
                 Console.WriteLine("Für welche Datei möchtest du eine neue Version hochladen? Gib bitte die Datei-ID an.");
 
+                // Gib alle Dateien, aktuelle Dateinamen und Versions-IDs aus
                 foreach (var remoteFile in remoteFiles)
                 {
                     var remoteVersion = await GetVersionAsync("api/Versions/" + remoteFile.VersionIds.Max());
@@ -203,36 +204,63 @@ namespace Client
                     Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2}", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id);
                 }
 
+                // Überprüfe, ob die eingegebene Datei-ID existiert
                 var fileId = Console.ReadLine();
                 var file = await GetFileAsync("api/Files/" + fileId);
+                if (file == null)
+                {
+                    Console.WriteLine("Die angegebene Datei-ID existiert nicht.");
+                    return;
+                }
 
+                // Dateipfad muss eingegeben werden
                 Console.WriteLine("Gib bitte den Pfad der Datei an, die du als neue Version hochladen möchtest.");
+                var filePath = Console.ReadLine();
 
+                // Lese neue Version der Datei ein
                 VersionObject newVersion = new VersionObject
                 {
                     // TODO: Text muss eingelesen werden
                     Filename = "testfile",
-                    Text = "this is the text."
+                    Text = "Das hier ist ein Text."
                 };
 
-                var url = await CreateVersionAsync(newVersion);
-                var version = await GetVersionAsync(url.PathAndQuery);
+                // Hole neueste Version der Datei
+                var version = await GetVersionAsync("api/Versions/" + file.VersionIds.Max());
 
+                // Vergleiche neueste Remote-Version der Datei mit dem lokalen Stand
+                Console.WriteLine("Die folgenden Änderungen werden in einer neuen Version hochgeladen. Bitte bestätigen mit 'y'.");
+                TextCompare textComparer = new TextCompare(version.Text, newVersion.Text);
+                Console.WriteLine(textComparer.VergleicheObjekte());
+
+                // Bestätigung erforderlich
+                if(Console.ReadLine() != "y")
+                {
+                    return;
+                }
+
+                // Lade neue Version der Datei hoch und gib sie zurück
+                var url = await CreateVersionAsync(newVersion);
+                version = await GetVersionAsync(url.PathAndQuery);
+
+                // Bearbeite Datei, sodass sie auch auf die soeben erstellte Version verweist
                 var versionIds = file.VersionIds;
                 versionIds.Add(version.Id);
-
                 FileObject updatedFile = new FileObject
                 {
                     Id = file.Id,
                     VersionIds = versionIds
                 };
 
+                // Bearbeitete Datei hochladen
                 file = await UpdateFileAsync(updatedFile);
 
-                Console.WriteLine("Für die Datei {0} (Datei-ID: {1}) wurde in der neuen Version {2} hochgeladen.", version.Filename, file.Id, version.Id);
+                // Bestätigung
+                Console.WriteLine("Für die Datei {0} (Datei-ID: {1}) wurde die neue Version {2} hochgeladen.", version.Filename, file.Id, version.Id);
             }
             else
             {
+                // Hinweis
                 Console.WriteLine("Es gibt noch keine Dateien, die du überschreiben könntest. Lege mit 'addfile' eine neue an.");
             }
         }
@@ -240,11 +268,12 @@ namespace Client
         static async Task AddFile()
         {
             // Einfügen einer neuen Datei
-
+            
+            // Dateipfad muss eingegeben werden
             Console.WriteLine("Bitte gib den Pfad der Datei an, die du hochladen möchtest.");
-
             var filePath = Console.ReadLine();
 
+            // Lese neue Version der Datei ein
             VersionObject newVersion = new VersionObject
             {
                 // TODO: Text muss eingelesen werden
@@ -252,18 +281,74 @@ namespace Client
                 Text = "this is the text."
             };
 
+            // Lade initiale Version der Datei hoch und gib sie zurück
             var url = await CreateVersionAsync(newVersion);
             var version = await GetVersionAsync(url.PathAndQuery);
 
+            // Erstelle neue Datei, die auf die soeben erstellte Version verweist
             FileObject newFile = new FileObject
             {
                 VersionIds = [version.Id]
             };
 
+            // Lade neue Datei hoch und gib sie zurück
             url = await CreateFileAsync(newFile);
             var file = await GetFileAsync(url.PathAndQuery);
 
+            // Bestätigung
             Console.WriteLine("Die Datei {0} (Datei-ID: {1}) wurde in der Version {2} hochgeladen.", version.Filename, file.Id, version.Id);
+        }
+
+        static async Task CreateTag()
+        {
+            // Kennzeichnen einer Version mit einem Tag
+
+            // Hole alle Dateien vom Server und überprüfe, ob es überhautp welche gibt
+            var remoteFiles = await GetFilesAsync();
+            if (remoteFiles.Length != 0)
+            {
+                Console.WriteLine("Für welche Datei möchtest du einen Tag erstellen? Gib bitte die Datei-ID an.");
+
+                // Gib alle Dateien, aktuelle Dateinamen und Versions-IDs aus
+                foreach (var remoteFile in remoteFiles)
+                {
+                    var remoteVersion = await GetVersionAsync("api/Versions/" + remoteFile.VersionIds.Max());
+
+                    Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2}", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id);
+                }
+
+                // Überprüfe, ob die eingegebene Datei-ID existiert
+                var fileId = Console.ReadLine();
+                var file = await GetFileAsync("api/Files/" + fileId);
+                if (file == null)
+                {
+                    Console.WriteLine("Die angegebene Datei-ID existiert nicht.");
+                    return;
+                }
+
+                // Tag eingeben
+                Console.WriteLine("Wie soll der Tag heißen?");
+                var tag = Console.ReadLine();
+
+                // Bearbeite aktuelle Version, sodass der Tag überschrieben wird
+                var version = await GetVersionAsync("api/Versions/" + file.VersionIds.Max());
+                VersionObject updatedVersion = new VersionObject
+                {
+                    Id = version.Id,
+                    Tag = tag
+                };
+
+                // Bearbeitete Version hochladen
+                version = await UpdateVersionAsync(updatedVersion);
+
+                // Bestätigung
+                Console.WriteLine("Die Version {0} der Datei {1} (Datei-ID: {2}) hat jetzt den Tag {3}.", version.Id, version.Filename, file.Id, version.Tag);
+            }
+            else
+            {
+                // Hinweis
+                Console.WriteLine("Es gibt noch keine Dateien, für die du einen Tag erstellen könntest. Lege mit 'addfile' eine neue an.");
+            }
         }
     }
 }

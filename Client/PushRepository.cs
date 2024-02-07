@@ -1,6 +1,6 @@
 ﻿using Commons.Models;
 
-namespace GitProjektWHS
+namespace Client
 {
     public class PushRepository
     {
@@ -28,7 +28,6 @@ namespace GitProjektWHS
                     new VersionObject
                     {
                         Id = VersionObjectID,
-                        FileId = VersionsDateiID,
                         Filename = file.Name,
                         Text = Inhalt,
                     });

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace GitProjektWHS
+namespace Client
 {
     public class TextCompare
     {

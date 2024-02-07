@@ -1,4 +1,5 @@
 ﻿using Commons.Models;
+using System;
 using System.Net;
 using System.Net.Http.Headers;
 
@@ -10,14 +11,23 @@ namespace Client
 
         static void ShowVersion(VersionObject version)
         {
-            Console.WriteLine($"ID: {version.Id}\tDateien: " +
-                $"{version.FileId}\tTag: " + $"{version.Tag}");
+            Console.WriteLine($"ID: {version.Id}\tTag: " + $"{version.Tag}");
         }
 
         static async Task<Uri> CreateVersionAsync(VersionObject version)
         {
             HttpResponseMessage response = await client.PostAsJsonAsync(
                 "api/Versions", version);
+            response.EnsureSuccessStatusCode();
+
+            // return URI of the created resource.
+            return response.Headers.Location;
+        }
+
+        static async Task<Uri> CreateFileAsync(FileObject file)
+        {
+            HttpResponseMessage response = await client.PostAsJsonAsync(
+                "api/Files", file);
             response.EnsureSuccessStatusCode();
 
             // return URI of the created resource.
@@ -33,6 +43,17 @@ namespace Client
                 version = await response.Content.ReadAsAsync<VersionObject>();
             }
             return version;
+        }
+
+        static async Task<FileObject> GetFileAsync(string path)
+        {
+            FileObject file = null;
+            HttpResponseMessage response = await client.GetAsync(path);
+            if (response.IsSuccessStatusCode)
+            {
+                file = await response.Content.ReadAsAsync<FileObject>();
+            }
+            return file;
         }
 
         static async Task<VersionObject> UpdateVersionAsync(VersionObject version)
@@ -105,7 +126,7 @@ namespace Client
                     // Holen der neuesten Version einer Datei mit Sperren vom Server
                     break;
                 case "addfile":
-                    // Einfügen einer neuen Datei
+                    AddFile();
                     break;
                 case "resetfile":
                     // Zurücksetzen  einer Datei auf eine alte Version
@@ -132,9 +153,44 @@ namespace Client
             HandleUserInput();
         }
 
+        static async Task AddFile()
+        {
+            // Einfügen einer neuen Datei
+
+            Console.WriteLine("Bitte gib den Pfad der Datei an, die du hochladen möchtest.");
+
+            var filePath = Console.ReadLine();
+
+            client.BaseAddress = new Uri("http://localhost:5049/");
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+
+            VersionObject version = new VersionObject
+            {
+                // TODO: Text muss eingelesen werden
+                Filename = "testfile",
+                Text = "this is the text."
+            };
+
+            var url = await CreateVersionAsync(version);
+            version = await GetVersionAsync(url.PathAndQuery);
+
+            FileObject file = new FileObject
+            {
+                Locked = false,
+                VersionIds = [version.Id]
+            };
+
+            url = await CreateFileAsync(file);
+            file = await GetFileAsync(url.PathAndQuery);
+
+            Console.WriteLine("Die Datei {0} wurde in der Version {1} hochgeladen.", version.Filename, version.Id);
+        }
+
         static async Task RunAsync()
         {
-            client.BaseAddress = new Uri("https://localhost:7158/");
+            client.BaseAddress = new Uri("http://localhost:5049/");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));

@@ -81,14 +81,11 @@ namespace Client
 
             Console.WriteLine(@"Hallo zum Git ""help"" für hilfe eingeben");
 
-            while (true)
-            {
-                GetUserCommand();
-            }
+            HandleUserInput();
 
         }
 
-        private static void GetUserCommand()
+        private static void HandleUserInput()
         {
             var userIput = Console.ReadLine();
             VersionObject version = new VersionObject
@@ -114,6 +111,8 @@ namespace Client
                     Console.WriteLine("Ungültige Eingabe");
                     break;
             }
+
+            HandleUserInput();
         }
 
         static async Task RunAsync()

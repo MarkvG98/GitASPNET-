@@ -56,6 +56,28 @@ namespace Client
             return file;
         }
 
+        static async Task<VersionObject[]> GetVersionsAsync()
+        {
+            VersionObject[] versions = null;
+            HttpResponseMessage response = await client.GetAsync("api/Versions");
+            if (response.IsSuccessStatusCode)
+            {
+                versions = await response.Content.ReadAsAsync<VersionObject[]>();
+            }
+            return versions;
+        }
+
+        static async Task<FileObject[]> GetFilesAsync()
+        {
+            FileObject[] files = null;
+            HttpResponseMessage response = await client.GetAsync("api/Files");
+            if (response.IsSuccessStatusCode)
+            {
+                files = await response.Content.ReadAsAsync<FileObject[]>();
+            }
+            return files;
+        }
+
         static async Task<VersionObject> UpdateVersionAsync(VersionObject version)
         {
             HttpResponseMessage response = await client.PutAsJsonAsync(
@@ -65,6 +87,17 @@ namespace Client
             // Deserialize the updated product from the response body.
             version = await response.Content.ReadAsAsync<VersionObject>();
             return version;
+        }
+
+        static async Task<FileObject> UpdateFileAsync(FileObject file)
+        {
+            HttpResponseMessage response = await client.PutAsJsonAsync(
+                $"api/Versions/{file.Id}", file);
+            response.EnsureSuccessStatusCode();
+
+            // Deserialize the updated product from the response body.
+            file = await response.Content.ReadAsAsync<FileObject>();
+            return file;
         }
 
         static async Task<HttpStatusCode> DeleteVersionAsync(long id)
@@ -100,6 +133,11 @@ namespace Client
         {
             // RunAsync().GetAwaiter().GetResult();
 
+            client.BaseAddress = new Uri("http://localhost:5049/");
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+
             Console.WriteLine("Hallo zum GitProjektWHS! Für eine Liste aller Befehle bitte 'help' eingeben.");
 
             HandleUserInput();
@@ -109,15 +147,11 @@ namespace Client
         private static void HandleUserInput()
         {
             var userInput = Console.ReadLine();
-            VersionObject version = new VersionObject
-            {
-                Id = 1
-            };
 
             switch (userInput)
             {
                 case "savefile":
-                    // Speichern einer Datei in einer neuen Version
+                    SaveFile();
                     break;
                 case "getfile":
                     // Holen der neuesten Version einer Datei vom Server
@@ -153,6 +187,56 @@ namespace Client
             HandleUserInput();
         }
 
+        static async Task SaveFile()
+        {
+            // Speichern einer Datei in einer neuen Version
+
+            var remoteFiles = await GetFilesAsync();
+
+            if (remoteFiles.Length != 0)
+            {
+                Console.WriteLine("Für welche Datei möchtest du eine neue Version hochladen? Gib bitte die Datei-ID an.");
+
+                foreach (var remoteFile in remoteFiles)
+                {
+                    var remoteVersion = await GetVersionAsync("api/Versions/" + remoteFile.VersionIds.Max());
+
+                    Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2})", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id);
+                }
+
+                Console.WriteLine("Gib bitte den Pfad der Datei an, die du als neue Version hochladen möchtest.");
+
+                var fileId = Console.ReadLine();
+                var file = await GetFileAsync("api/Files" + fileId);
+
+                VersionObject newVersion = new VersionObject
+                {
+                    // TODO: Text muss eingelesen werden
+                    Filename = "testfile",
+                    Text = "this is the text."
+                };
+
+                var url = await CreateVersionAsync(newVersion);
+                var version = await GetVersionAsync(url.PathAndQuery);
+
+                var versionIds = file.VersionIds;
+                versionIds[versionIds.Length] = version.Id;
+
+                FileObject updatedFile = new FileObject
+                {
+                    VersionIds = versionIds
+                };
+
+                file = await UpdateFileAsync(file);
+
+                Console.WriteLine("Für die Datei {0} (ID: {1}) wurde in der neuen Version {2} hochgeladen.", version.Filename, file.Id, version.Id);
+            }
+            else
+            {
+                Console.WriteLine("Es gibt noch keine Dateien, die du überschreiben könntest. Lege mit 'addfile' eine neue an.");
+            }
+        }
+
         static async Task AddFile()
         {
             // Einfügen einer neuen Datei
@@ -161,75 +245,25 @@ namespace Client
 
             var filePath = Console.ReadLine();
 
-            client.BaseAddress = new Uri("http://localhost:5049/");
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json"));
-
-            VersionObject version = new VersionObject
+            VersionObject newVersion = new VersionObject
             {
                 // TODO: Text muss eingelesen werden
                 Filename = "testfile",
                 Text = "this is the text."
             };
 
-            var url = await CreateVersionAsync(version);
-            version = await GetVersionAsync(url.PathAndQuery);
+            var url = await CreateVersionAsync(newVersion);
+            var version = await GetVersionAsync(url.PathAndQuery);
 
-            FileObject file = new FileObject
+            FileObject newFile = new FileObject
             {
-                Locked = false,
                 VersionIds = [version.Id]
             };
 
-            url = await CreateFileAsync(file);
-            file = await GetFileAsync(url.PathAndQuery);
+            url = await CreateFileAsync(newFile);
+            var file = await GetFileAsync(url.PathAndQuery);
 
-            Console.WriteLine("Die Datei {0} wurde in der Version {1} hochgeladen.", version.Filename, version.Id);
-        }
-
-        static async Task RunAsync()
-        {
-            client.BaseAddress = new Uri("http://localhost:5049/");
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json"));
-
-            try
-            {
-                // Create a new version
-                VersionObject version = new VersionObject
-                {
-                    Id = 1
-                };
-
-                var url = await CreateVersionAsync(version);
-                Console.WriteLine($"Created at {url}");
-
-                // Get the version
-                version = await GetVersionAsync(url.PathAndQuery);
-                ShowVersion(version);
-
-                // Update the version
-                Console.WriteLine("Updating tag...");
-                version.Tag = "v1.0.0";
-                await UpdateVersionAsync(version);
-
-                // Get the updated version
-                version = await GetVersionAsync(url.PathAndQuery);
-                ShowVersion(version);
-
-                // Delete the version
-                var statusCode = await DeleteVersionAsync(version.Id);
-                Console.WriteLine($"Deleted (HTTP Status = {(int)statusCode})");
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
-
-            Console.ReadLine();
+            Console.WriteLine("Die Datei {0} (ID: {1}) wurde in der Version {2} hochgeladen.", version.Filename, file.Id, version.Id);
         }
     }
 }

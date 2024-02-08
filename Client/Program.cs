@@ -231,13 +231,8 @@ namespace Client
                 }
 
                 // Sperren
-                FileObject updatedFile = new FileObject
-                {
-                    Id = file.Id,
-                    VersionIds = file.VersionIds,
-                    Locked = true
-                };
-                file = await UpdateFileAsync(updatedFile);
+                file.Locked = true;
+                file = await UpdateFileAsync(file);
 
                 // Hole neueste Remote-Version der Datei
                 var version = await GetVersionAsync("api/Versions/" + file.VersionIds.Max());
@@ -329,14 +324,9 @@ namespace Client
                 // Bearbeite Datei, sodass sie auch auf die soeben erstellte Version verweist
                 var versionIds = file.VersionIds;
                 versionIds.Add(version.Id);
-                FileObject updatedFile = new FileObject
-                {
-                    Id = file.Id,
-                    VersionIds = versionIds
-                };
 
                 // Bearbeitete Datei hochladen
-                file = await UpdateFileAsync(updatedFile);
+                file = await UpdateFileAsync(file);
 
                 // Bestätigung
                 Console.WriteLine("Für die Datei {0} (Datei-ID: {1}) wurde die neue Version {2} hochgeladen.", version.Filename, file.Id, version.Id);
@@ -453,14 +443,9 @@ namespace Client
                 // Bearbeite Datei, sodass sie auch auf die soeben erstellte Version verweist
                 var versionIds = file.VersionIds;
                 versionIds.Add(createdVersion.Id);
-                FileObject updatedFile = new FileObject
-                {
-                    Id = file.Id,
-                    VersionIds = versionIds
-                };
 
                 // Bearbeitete Datei hochladen
-                file = await UpdateFileAsync(updatedFile);
+                file = await UpdateFileAsync(file);
 
                 // Bestätigung
                 Console.WriteLine("Der alte Stand (Version {0}) der Datei {1} (Datei-ID: {2}) wurde in der neuen Version {3} hochgeladen.", resetVersion.Id, createdVersion.Filename, file.Id, createdVersion.Id);
@@ -505,14 +490,10 @@ namespace Client
 
                 // Bearbeite aktuelle Version, sodass der Tag überschrieben wird
                 var version = await GetVersionAsync("api/Versions/" + file.VersionIds.Max());
-                VersionObject updatedVersion = new VersionObject
-            {
-                    Id = version.Id,
-                    Tag = tag
-                };
+                version.Tag = tag;
 
                 // Bearbeitete Version hochladen
-                version = await UpdateVersionAsync(updatedVersion);
+                version = await UpdateVersionAsync(version);
 
                 // Bestätigung
                 Console.WriteLine("Die Version {0} der Datei {1} (Datei-ID: {2}) hat jetzt den Tag {3}.", version.Id, version.Filename, file.Id, version.Tag);

@@ -93,8 +93,6 @@ namespace Client
 
         static void Main()
         {
-            // RunAsync().GetAwaiter().GetResult();
-
             client.BaseAddress = new Uri("http://localhost:5049/");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(
@@ -168,6 +166,11 @@ namespace Client
 
                 // Überprüfe, ob die eingegebene Datei-ID existiert
                 var fileId = Console.ReadLine();
+                if (fileId == null)
+                {
+                    Console.WriteLine("Keine ID eingegeben");
+                    return;
+                }
                 var file = await GetFileAsync("api/Files/" + fileId);
                 if (file == null)
                 {
@@ -223,6 +226,11 @@ namespace Client
 
                 // Überprüfe, ob die eingegebene Datei-ID existiert
                 var fileId = Console.ReadLine();
+                if (fileId == null)
+                {
+                    Console.WriteLine("Keine ID eingegeben");
+                    return;
+                }
                 var file = await GetFileAsync("api/Files/" + fileId);
                 if (file == null)
                 {
@@ -283,6 +291,11 @@ namespace Client
                 // TODO: Überprüfen, ob Datei gesperrt ist und ob man eine neue Version anlegen darf!
                 // Überprüfe, ob die eingegebene Datei-ID existiert
                 var fileId = Console.ReadLine();
+                if (fileId == null)
+                {
+                    Console.WriteLine("Keine ID eingegeben");
+                    return;
+                }
                 var file = await GetFileAsync("api/Files/" + fileId);
                 if (file == null)
                 {
@@ -390,6 +403,11 @@ namespace Client
                 // TODO: Überprüfen, ob Datei gesperrt ist und ob man eine neue Version anlegen darf!
                 // Überprüfe, ob die eingegebene Datei-ID existiert
                 var fileId = Console.ReadLine();
+                if (fileId == null)
+                {
+                    Console.WriteLine("Keine ID eingegeben");
+                    return;
+                }
                 var file = await GetFileAsync("api/Files/" + fileId);
                 if (file == null)
                 {
@@ -407,6 +425,11 @@ namespace Client
 
                 // Überprüfe, ob die eingegebene Versions-ID existiert
                 var resetVersionId = Console.ReadLine();
+                if (resetVersionId == null)
+                {
+                    Console.WriteLine("Keine Versions-ID eingegeben");
+                    return;
+                }
                 var resetVersion = await GetVersionAsync("api/Versions/" + resetVersionId);
                 if (resetVersion == null)
                 {
@@ -477,6 +500,11 @@ namespace Client
 
                 // Überprüfe, ob die eingegebene Datei-ID existiert
                 var fileId = Console.ReadLine();
+                if (fileId == null)
+                {
+                    Console.WriteLine("Keine ID eingegeben");
+                    return;
+                }
                 var file = await GetFileAsync("api/Files/" + fileId);
                 if (file == null)
                 {

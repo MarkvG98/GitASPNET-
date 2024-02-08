@@ -166,7 +166,7 @@ namespace Client
 
                 // Überprüfe, ob die eingegebene Datei-ID existiert
                 var fileId = Console.ReadLine();
-                if (fileId == null)
+                if (fileId == "")
                 {
                     Console.WriteLine("Keine ID eingegeben");
                     return;
@@ -226,7 +226,7 @@ namespace Client
 
                 // Überprüfe, ob die eingegebene Datei-ID existiert
                 var fileId = Console.ReadLine();
-                if (fileId == null)
+                if (fileId == "")
                 {
                     Console.WriteLine("Keine ID eingegeben");
                     return;
@@ -291,7 +291,7 @@ namespace Client
                 // TODO: Überprüfen, ob Datei gesperrt ist und ob man eine neue Version anlegen darf!
                 // Überprüfe, ob die eingegebene Datei-ID existiert
                 var fileId = Console.ReadLine();
-                if (fileId == null)
+                if (fileId == "")
                 {
                     Console.WriteLine("Keine ID eingegeben");
                     return;
@@ -403,7 +403,7 @@ namespace Client
                 // TODO: Überprüfen, ob Datei gesperrt ist und ob man eine neue Version anlegen darf!
                 // Überprüfe, ob die eingegebene Datei-ID existiert
                 var fileId = Console.ReadLine();
-                if (fileId == null)
+                if (fileId == "")
                 {
                     Console.WriteLine("Keine ID eingegeben");
                     return;
@@ -425,7 +425,7 @@ namespace Client
 
                 // Überprüfe, ob die eingegebene Versions-ID existiert
                 var resetVersionId = Console.ReadLine();
-                if (resetVersionId == null)
+                if (resetVersionId == "")
                 {
                     Console.WriteLine("Keine Versions-ID eingegeben");
                     return;
@@ -500,7 +500,7 @@ namespace Client
 
                 // Überprüfe, ob die eingegebene Datei-ID existiert
                 var fileId = Console.ReadLine();
-                if (fileId == null)
+                if (fileId == "")
                 {
                     Console.WriteLine("Keine ID eingegeben");
                     return;

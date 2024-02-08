@@ -10,11 +10,6 @@ namespace Client
     {
         static HttpClient client = new HttpClient();
 
-        static void ShowVersion(VersionObject version)
-        {
-            Console.WriteLine($"ID: {version.Id}\tTag: " + $"{version.Tag}");
-        }
-
         static async Task<Uri> CreateVersionAsync(VersionObject version)
         {
             HttpResponseMessage response = await client.PostAsJsonAsync(
@@ -57,17 +52,6 @@ namespace Client
             return file;
         }
 
-        static async Task<VersionObject[]> GetVersionsAsync()
-        {
-            VersionObject[] versions = null;
-            HttpResponseMessage response = await client.GetAsync("api/Versions");
-            if (response.IsSuccessStatusCode)
-            {
-                versions = await response.Content.ReadAsAsync<VersionObject[]>();
-            }
-            return versions;
-        }
-
         static async Task<FileObject[]> GetFilesAsync()
         {
             FileObject[] files = null;
@@ -101,10 +85,10 @@ namespace Client
             return file;
         }
 
-        static async Task<HttpStatusCode> DeleteVersionAsync(long id)
+        static async Task<HttpStatusCode> DeleteFileAsync(long id)
         {
             HttpResponseMessage response = await client.DeleteAsync(
-                $"api/Versions/{id}");
+                $"api/Files/{id}");
             return response.StatusCode;
         }
 
@@ -135,7 +119,7 @@ namespace Client
                     await GetFile();
                     break;
                 case "getfilewithlock":
-                    // Holen der neuesten Version einer Datei mit Sperren vom Server
+                    await GetFileWithLock();
                     break;
                 case "addfile":
                     await AddFile();
@@ -220,6 +204,70 @@ namespace Client
             }
         }
 
+        static async Task GetFileWithLock()
+        {
+            // Holen der neuesten Version einer Datei mit Sperren vom Server
+
+            // Hole alle Dateien vom Server und überprüfe, ob es überhautp welche gibt
+            var remoteFiles = await GetFilesAsync();
+            if (remoteFiles.Length != 0)
+            {
+                Console.WriteLine("Welche Datei möchtest du herunterladen und sperren? Gib bitte die Datei-ID an.");
+
+                // Gib alle Dateien, aktuelle Dateinamen und Versions-IDs aus
+                foreach (var remoteFile in remoteFiles)
+                {
+                    var remoteVersion = await GetVersionAsync("api/Versions/" + remoteFile.VersionIds.Max());
+
+                    Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2}", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id);
+                }
+
+                // Überprüfe, ob die eingegebene Datei-ID existiert
+                var fileId = Console.ReadLine();
+                var file = await GetFileAsync("api/Files/" + fileId);
+                if (file == null)
+                {
+                    Console.WriteLine("Die angegebene Datei-ID existiert nicht.");
+                    return;
+                }
+
+                // Sperren
+                FileObject updatedFile = new FileObject
+                {
+                    Id = file.Id,
+                    VersionIds = file.VersionIds,
+                    Locked = true
+                };
+                file = await UpdateFileAsync(updatedFile);
+
+                // Hole neueste Remote-Version der Datei
+                var version = await GetVersionAsync("api/Versions/" + file.VersionIds.Max());
+
+                // Speicherort eingeben
+                Console.WriteLine("In welchem Ordner soll die Datei gespeichert werden?");
+                var filePath = Console.ReadLine();
+
+                // Erstelle die Datei samt Inhalt
+                try
+                {
+                    File.WriteAllText(filePath + "\\" + version.Filename, version.Text);
+                }
+                catch
+                {
+                    Console.WriteLine("Ungültiger Dateipfad");
+                    return;
+                }
+
+                // Bestätigung
+                Console.WriteLine("Die Datei {0} (Datei-ID: {1}) wurde in Version {2} heruntergeladen.", version.Filename, file.Id, version.Id);
+            }
+            else
+            {
+                // Hinweis
+                Console.WriteLine("Es gibt noch keine Dateien, die du herunterladen könntest. Lege mit 'addfile' eine Neue an.");
+            }
+        }
+
         static async Task SaveFile()
         {
             // Speichern einer Datei in einer neuen Version
@@ -238,6 +286,7 @@ namespace Client
                     Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2}", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id);
                 }
 
+                // TODO: Überprüfen, ob Datei gesperrt ist und ob man eine neue Version anlegen darf!
                 // Überprüfe, ob die eingegebene Datei-ID existiert
                 var fileId = Console.ReadLine();
                 var file = await GetFileAsync("api/Files/" + fileId);
@@ -270,6 +319,7 @@ namespace Client
                 // Bestätigung erforderlich
                 if(Console.ReadLine() != "y")
                 {
+                    Console.WriteLine("Die neue Version wurde nicht hochgeladen.");
                     return;
                 }
 

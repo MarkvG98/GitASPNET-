@@ -1,6 +1,4 @@
 ﻿using Commons.Models;
-using System;
-using System.IO;
 using System.Net;
 using System.Net.Http.Headers;
 
@@ -12,6 +10,7 @@ namespace Client
 
         static async Task<Uri> CreateVersionAsync(VersionObject version)
         {
+            version.Timestamp = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
             HttpResponseMessage response = await client.PostAsJsonAsync(
                 "api/Versions", version);
             response.EnsureSuccessStatusCode();
@@ -125,7 +124,7 @@ namespace Client
                     await AddFile();
                     break;
                 case "resetfile":
-                    // Zurücksetzen einer Datei auf eine alte Version TODO: richtig implementieren
+                    await ResetFile();
                     break;
                 case "createtag":
                     await CreateTag();
@@ -164,7 +163,7 @@ namespace Client
                 {
                     var remoteVersion = await GetVersionAsync("api/Versions/" + remoteFile.VersionIds.Max());
 
-                    Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2}", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id);
+                    Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2}, Stand: {3}", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id, remoteVersion.Timestamp);
                 }
 
                 // Überprüfe, ob die eingegebene Datei-ID existiert
@@ -219,7 +218,7 @@ namespace Client
                 {
                     var remoteVersion = await GetVersionAsync("api/Versions/" + remoteFile.VersionIds.Max());
 
-                    Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2}", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id);
+                    Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2}, Stand: {3}", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id, remoteVersion.Timestamp);
                 }
 
                 // Überprüfe, ob die eingegebene Datei-ID existiert
@@ -283,7 +282,7 @@ namespace Client
                 {
                     var remoteVersion = await GetVersionAsync("api/Versions/" + remoteFile.VersionIds.Max());
 
-                    Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2}", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id);
+                    Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2}, Stand: {3}", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id, remoteVersion.Timestamp);
                 }
 
                 // TODO: Überprüfen, ob Datei gesperrt ist und ob man eine neue Version anlegen darf!
@@ -367,12 +366,12 @@ namespace Client
 
             // Lade initiale Version der Datei hoch und gib sie zurück
             var url = await CreateVersionAsync(newVersion);
-            var version = await GetVersionAsync(url.PathAndQuery);
+            var createdVersion = await GetVersionAsync(url.PathAndQuery);
 
             // Erstelle neue Datei, die auf die soeben erstellte Version verweist
             FileObject newFile = new FileObject
             {
-                VersionIds = [version.Id]
+                VersionIds = [createdVersion.Id]
             };
 
             // Lade neue Datei hoch und gib sie zurück
@@ -380,29 +379,97 @@ namespace Client
             var file = await GetFileAsync(url.PathAndQuery);
 
             // Bestätigung
-            Console.WriteLine("Die Datei {0} (Datei-ID: {1}) wurde in der Version {2} hochgeladen.", version.Filename, file.Id, version.Id);
+            Console.WriteLine("Die Datei {0} (Datei-ID: {1}) wurde in der Version {2} hochgeladen.", createdVersion.Filename, file.Id, createdVersion.Id);
         }
-        static void ResetVersion()
+        static async Task ResetFile()
         {
-            Console.WriteLine("Gib die Versionsdatei an");
-            var VersionsID = Console.ReadLine();
-            Console.WriteLine("Gib die Version an");
-            var Version = Console.ReadLine();
-
-            Console.WriteLine("Du Möchtest Datei {0} auf Version {1} " +
-                "zurücksetzen? Bitte mit J bestätigen", VersionsID, Version);
-
-            if (Console.ReadLine() == "J")
+            // Hole alle Dateien vom Server und überprüfe, ob es überhautp welche gibt
+            var remoteFiles = await GetFilesAsync();
+            if (remoteFiles.Length != 0)
             {
-                //Mache Reset
-                Console.WriteLine("Reset erfolgreich");
+                Console.WriteLine("Welche Datei möchtest du auf eine alte Version zurücksetzen? Gib bitte die Datei-ID an.");
 
+                // Gib alle Dateien, aktuelle Dateinamen und Versions-IDs aus
+                foreach (var remoteFile in remoteFiles)
+                {
+                    var remoteVersion = await GetVersionAsync("api/Versions/" + remoteFile.VersionIds.Max());
+
+                    Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2}, Stand: {3}", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id, remoteVersion.Timestamp);
+                }
+
+                // TODO: Überprüfen, ob Datei gesperrt ist und ob man eine neue Version anlegen darf!
+                // Überprüfe, ob die eingegebene Datei-ID existiert
+                var fileId = Console.ReadLine();
+                var file = await GetFileAsync("api/Files/" + fileId);
+                if (file == null)
+                {
+                    Console.WriteLine("Die angegebene Datei-ID existiert nicht.");
+                    return;
+                }
+
+                // Alle Versionen ausgeben
+                Console.WriteLine("Auf welche Verson möchtest du die Datei zurücksetzen? Gib bitte die Version an.");
+                foreach (var versionId in file.VersionIds)
+                {
+                    var version = await GetVersionAsync("api/Versions/" + versionId);
+                    Console.WriteLine("  Version: {0}, Dateiname: {1}, Stand: {2}", version.Id, version.Filename, version.Timestamp);
+                }
+
+                // Überprüfe, ob die eingegebene Versions-ID existiert
+                var resetVersionId = Console.ReadLine();
+                var resetVersion = await GetVersionAsync("api/Versions/" + resetVersionId);
+                if (resetVersion == null)
+                {
+                    Console.WriteLine("Die angegebene Versions-ID existiert nicht.");
+                    return;
+                }
+
+                // Erstelle neue Version mit altem Dateinamen und Dateiinhalt
+                VersionObject newVersion = new VersionObject
+                {
+                    Filename = resetVersion.Filename,
+                    Text = resetVersion.Text
+                };
+
+                // Hole neueste Remote-Version der Datei
+                var currentVersion = await GetVersionAsync("api/Versions/" + file.VersionIds.Max());
+
+                // Vergleiche neueste Remote-Version der Datei mit dem lokalen Stand
+                Console.WriteLine("Die folgenden Änderungen werden in einer neuen Version hochgeladen. Bitte bestätigen mit 'y'.");
+                TextCompare textComparer = new TextCompare(currentVersion.Text, newVersion.Text);
+                Console.WriteLine(textComparer.VergleicheObjekte());
+
+                // Bestätigung erforderlich
+                if (Console.ReadLine() != "y")
+                {
+                    Console.WriteLine("Die neue Version wurde nicht hochgeladen.");
+                    return;
+                }
+
+                // Lade neue Version der Datei hoch und gib sie zurück
+                var url = await CreateVersionAsync(newVersion);
+                var createdVersion = await GetVersionAsync(url.PathAndQuery);
+
+                // Bearbeite Datei, sodass sie auch auf die soeben erstellte Version verweist
+                var versionIds = file.VersionIds;
+                versionIds.Add(createdVersion.Id);
+                FileObject updatedFile = new FileObject
+                {
+                    Id = file.Id,
+                    VersionIds = versionIds
+                };
+
+                // Bearbeitete Datei hochladen
+                file = await UpdateFileAsync(updatedFile);
+
+                // Bestätigung
+                Console.WriteLine("Der alte Stand (Version {0}) der Datei {1} (Datei-ID: {2}) wurde in der neuen Version {3} hochgeladen.", resetVersion.Id, createdVersion.Filename, file.Id, createdVersion.Id);
             }
             else
             {
-                Console.WriteLine("Abbruch");
+                // Hinweis
+                Console.WriteLine("Es gibt noch keine Dateien, die du überschreiben könntest. Lege mit 'addfile' eine Neue an.");
             }
-
         }
 
         static async Task CreateTag()
@@ -420,7 +487,7 @@ namespace Client
                 {
                     var remoteVersion = await GetVersionAsync("api/Versions/" + remoteFile.VersionIds.Max());
 
-                    Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2}", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id);
+                    Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2}, Stand: {3}", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id, remoteVersion.Timestamp);
                 }
 
                 // Überprüfe, ob die eingegebene Datei-ID existiert

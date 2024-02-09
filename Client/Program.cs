@@ -100,10 +100,10 @@ namespace Client
 
             Console.WriteLine("Hallo zum GitProjektWHS! Für eine Liste aller Befehle bitte 'help' eingeben.");
 
-            Task.WaitAll(HandleUserInput());
+            HandleUserInput().Wait();
         }
 
-        private async static Task HandleUserInput()
+        static async Task HandleUserInput()
         {
             var userInput = Console.ReadLine();
 

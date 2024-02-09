@@ -16,9 +16,30 @@ Microsoft SQL Server installieren
 ## Usage
 
 ### Versionsverwaltung
+
 ```bash
-# Hier CLI Befehle auflisten
+# Speichern einer Datei in einer neuen Version
+savefile
+
+# Holen der neuesten Version einer Datei vom Server
+getfile
+
+# Holen der neuesten Version einer Datei mit Sperren vom Server
+getfilewithlock
+
+# Einfügen einer neuen Datei
+addfile
+
+# Zurücksetzen einer Datei auf eine alte Version
+resetfile
+
+# Kennzeichnen einer Version mit einem Tag
+edittag
+
+# Befehle auflisten
+help
 ```
+
 ### Datenbank
 
 In der Paket-Manager-Konsole:

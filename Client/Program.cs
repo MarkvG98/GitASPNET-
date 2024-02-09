@@ -124,8 +124,8 @@ namespace Client
                 case "resetfile":
                     await ResetFile();
                     break;
-                case "createtag":
-                    await CreateTag();
+                case "edittag":
+                    await EditTag();
                     break;
                 case "help":
                     // Befehle auflisten
@@ -135,7 +135,7 @@ namespace Client
                                       "  getfilewithlock  Holen der neuesten Version einer Datei mit Sperren vom Server\n" +
                                       "  addfile          Einfügen einer neuen Datei\n" +
                                       "  resetfile        Zurücksetzen einer Datei auf eine alte Version\n" +
-                                      "  createtag        Kennzeichnen einer Version mit einem Tag\n" +
+                                      "  edittag        Kennzeichnen einer Version mit einem Tag\n" +
                                       "  help             Befehle auflisten");
                     break;
                 default:
@@ -500,7 +500,7 @@ namespace Client
             }
         }
 
-        static async Task CreateTag()
+        static async Task EditTag()
         {
             // Kennzeichnen einer Version mit einem Tag
 

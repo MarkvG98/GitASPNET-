@@ -288,7 +288,6 @@ namespace Client
                     Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2}, Stand: {3}", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id, remoteVersion.Timestamp);
                 }
 
-                // TODO: Überprüfen, ob Datei gesperrt ist und ob man eine neue Version anlegen darf!
                 // Überprüfe, ob die eingegebene Datei-ID existiert
                 var fileId = Console.ReadLine();
                 if (fileId == "")
@@ -301,6 +300,18 @@ namespace Client
                 {
                     Console.WriteLine("Die angegebene Datei-ID existiert nicht.");
                     return;
+                }
+
+                // Überprüfe, ob Datei gesperrt ist
+                if (file.Locked)
+                {
+                    Console.WriteLine("Die angegebene Datei ist gesperrt. Möchtest du sie entsperren, um sie zu bearbeiten? Bitte bestätigen mit 'y'.");
+                    if (Console.ReadLine() != "y")
+                    {
+                        Console.WriteLine("Die neue VErsion wurde nicht hochgeladen.");
+                        return;
+                    }
+                    file.Locked = false;
                 }
 
                 // Dateipfad muss eingegeben werden
@@ -324,7 +335,7 @@ namespace Client
                 Console.WriteLine(textComparer.VergleicheObjekte());
 
                 // Bestätigung erforderlich
-                if(Console.ReadLine() != "y")
+                if (Console.ReadLine() != "y")
                 {
                     Console.WriteLine("Die neue Version wurde nicht hochgeladen.");
                     return;
@@ -335,8 +346,7 @@ namespace Client
                 version = await GetVersionAsync(url.PathAndQuery);
 
                 // Bearbeite Datei, sodass sie auch auf die soeben erstellte Version verweist
-                var versionIds = file.VersionIds;
-                versionIds.Add(version.Id);
+                file.VersionIds.Add(version.Id);
 
                 // Bearbeitete Datei hochladen
                 file = await UpdateFileAsync(file);
@@ -354,7 +364,7 @@ namespace Client
         static async Task AddFile()
         {
             // Einfügen einer neuen Datei
-            
+
             // Dateipfad muss eingegeben werden
             Console.WriteLine("Bitte gib den Pfad der Datei an, die du hochladen möchtest.");
             var filePath = Console.ReadLine();
@@ -400,7 +410,6 @@ namespace Client
                     Console.WriteLine("  Datei-ID: {0}, Dateiname: {1}, aktuelle Version: {2}, Stand: {3}", remoteFile.Id, remoteVersion.Filename, remoteVersion.Id, remoteVersion.Timestamp);
                 }
 
-                // TODO: Überprüfen, ob Datei gesperrt ist und ob man eine neue Version anlegen darf!
                 // Überprüfe, ob die eingegebene Datei-ID existiert
                 var fileId = Console.ReadLine();
                 if (fileId == "")
@@ -413,6 +422,18 @@ namespace Client
                 {
                     Console.WriteLine("Die angegebene Datei-ID existiert nicht.");
                     return;
+                }
+
+                // Überprüfe, ob Datei gesperrt ist
+                if (file.Locked)
+                {
+                    Console.WriteLine("Die angegebene Datei ist gesperrt. Möchtest du sie entsperren, um sie zu bearbeiten? Bitte bestätigen mit 'y'.");
+                    if (Console.ReadLine() != "y")
+                    {
+                        Console.WriteLine("Die neue Version wurde nicht zurückgesetzt.");
+                        return;
+                    }
+                    file.Locked = false;
                 }
 
                 // Alle Versionen ausgeben
@@ -464,8 +485,7 @@ namespace Client
                 var createdVersion = await GetVersionAsync(url.PathAndQuery);
 
                 // Bearbeite Datei, sodass sie auch auf die soeben erstellte Version verweist
-                var versionIds = file.VersionIds;
-                versionIds.Add(createdVersion.Id);
+                file.VersionIds.Add(createdVersion.Id);
 
                 // Bearbeitete Datei hochladen
                 file = await UpdateFileAsync(file);

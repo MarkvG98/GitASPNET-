@@ -1,4 +1,6 @@
 ﻿using Commons.Models;
+using System;
+using System.Drawing;
 using System.Net;
 using System.Net.Http.Headers;
 
@@ -319,11 +321,11 @@ namespace Client
                 var filePath = Console.ReadLine();
 
                 // Lese neue Version der Datei ein
-                VersionObject newVersion = new VersionObject
+                VersionObject newVersion = new()
                 {
                     // TODO: Text muss eingelesen werden
                     Filename = "testfile",
-                    Text = "Das hier ist ein Text."
+                    Text = "Das hier ist ein Text.\nDas hier ist die zweite Zeile."
                 };
 
                 // Hole neueste Remote-Version der Datei
@@ -331,8 +333,15 @@ namespace Client
 
                 // Vergleiche neueste Remote-Version der Datei mit dem lokalen Stand
                 Console.WriteLine("Die folgenden Änderungen werden in einer neuen Version hochgeladen. Bitte bestätigen mit 'y'.");
-                TextCompare textComparer = new TextCompare(version.Text, newVersion.Text);
-                Console.WriteLine(textComparer.VergleicheObjekte());
+                TextCompare textComparer = new(version.Text, newVersion.Text);
+                Console.WriteLine("  Hinzugefügt:");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("    " + textComparer.VergleicheObjekte().added);
+                Console.ResetColor();
+                Console.WriteLine("  Entfernt:");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("    " + textComparer.VergleicheObjekte().removed);
+                Console.ResetColor();
 
                 // Bestätigung erforderlich
                 if (Console.ReadLine() != "y")
@@ -370,11 +379,11 @@ namespace Client
             var filePath = Console.ReadLine();
 
             // Lese neue Version der Datei ein
-            VersionObject newVersion = new VersionObject
+            VersionObject newVersion = new()
             {
                 // TODO: Text muss eingelesen werden
                 Filename = "testfile",
-                Text = "this is the text."
+                Text = "this is the text.\nSecond line"
             };
 
             // Lade initiale Version der Datei hoch und gib sie zurück
@@ -459,7 +468,7 @@ namespace Client
                 }
 
                 // Erstelle neue Version mit altem Dateinamen und Dateiinhalt
-                VersionObject newVersion = new VersionObject
+                VersionObject newVersion = new()
                 {
                     Filename = resetVersion.Filename,
                     Text = resetVersion.Text
@@ -470,8 +479,15 @@ namespace Client
 
                 // Vergleiche neueste Remote-Version der Datei mit dem lokalen Stand
                 Console.WriteLine("Die folgenden Änderungen werden in einer neuen Version hochgeladen. Bitte bestätigen mit 'y'.");
-                TextCompare textComparer = new TextCompare(currentVersion.Text, newVersion.Text);
-                Console.WriteLine(textComparer.VergleicheObjekte());
+                TextCompare textComparer = new(resetVersion.Text, newVersion.Text);
+                Console.WriteLine("  Hinzugefügt:");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("    " + textComparer.VergleicheObjekte().added);
+                Console.ResetColor();
+                Console.WriteLine("  Entfernt:");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("    " + textComparer.VergleicheObjekte().removed);
+                Console.ResetColor();
 
                 // Bestätigung erforderlich
                 if (Console.ReadLine() != "y")

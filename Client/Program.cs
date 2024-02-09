@@ -135,7 +135,7 @@ namespace Client
                                       "  getfilewithlock  Holen der neuesten Version einer Datei mit Sperren vom Server\n" +
                                       "  addfile          Einfügen einer neuen Datei\n" +
                                       "  resetfile        Zurücksetzen einer Datei auf eine alte Version\n" +
-                                      "  edittag        Kennzeichnen einer Version mit einem Tag\n" +
+                                      "  edittag          Kennzeichnen einer Version mit einem Tag\n" +
                                       "  help             Befehle auflisten");
                     break;
                 default:

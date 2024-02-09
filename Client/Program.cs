@@ -105,29 +105,31 @@ namespace Client
             HandleUserInput().Wait();
         }
 
-        static async Task HandleUserInput()
+        private static async Task HandleUserInput()
         {
+            // Warte auf Befehlseingabe
             var userInput = Console.ReadLine();
 
+            // Verarbeite Befehl
             switch (userInput)
             {
                 case "savefile":
-                    await SaveFile();
+                    await SaveFileAsync();
                     break;
                 case "getfile":
-                    await GetFile();
+                    await GetFileAsyns();
                     break;
                 case "getfilewithlock":
-                    await GetFileWithLock();
+                    await GetFileWithLockAsync();
                     break;
                 case "addfile":
-                    await AddFile();
+                    await AddFileAsync();
                     break;
                 case "resetfile":
-                    await ResetFile();
+                    await ResetFileAsync();
                     break;
                 case "edittag":
-                    await EditTag();
+                    await EditTagAsync();
                     break;
                 case "help":
                     // Befehle auflisten
@@ -145,10 +147,11 @@ namespace Client
                     break;
             }
 
+            // Warte erneut auf Befehlseingabe
             await HandleUserInput();
         }
 
-        static async Task GetFile()
+        private static async Task GetFileAsyns()
         {
             // Holen der neuesten Version einer Datei vom Server
 
@@ -208,7 +211,7 @@ namespace Client
             }
         }
 
-        static async Task GetFileWithLock()
+        private static async Task GetFileWithLockAsync()
         {
             // Holen der neuesten Version einer Datei mit Sperren vom Server
 
@@ -272,7 +275,7 @@ namespace Client
             }
         }
 
-        static async Task SaveFile()
+        private static async Task SaveFileAsync()
         {
             // Speichern einer Datei in einer neuen Version
 
@@ -370,7 +373,7 @@ namespace Client
             }
         }
 
-        static async Task AddFile()
+        private static async Task AddFileAsync()
         {
             // Einfügen einer neuen Datei
 
@@ -403,7 +406,7 @@ namespace Client
             // Bestätigung
             Console.WriteLine("Die Datei {0} (Datei-ID: {1}) wurde in der Version {2} hochgeladen.", createdVersion.Filename, file.Id, createdVersion.Id);
         }
-        static async Task ResetFile()
+        private static async Task ResetFileAsync()
         {
             // Hole alle Dateien vom Server und überprüfe, ob es überhautp welche gibt
             var remoteFiles = await GetFilesAsync();
@@ -516,7 +519,7 @@ namespace Client
             }
         }
 
-        static async Task EditTag()
+        private static async Task EditTagAsync()
         {
             // Kennzeichnen einer Version mit einem Tag
 

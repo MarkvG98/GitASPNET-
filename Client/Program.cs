@@ -336,7 +336,7 @@ namespace Client
 
                 // Vergleiche neueste Remote-Version der Datei mit dem lokalen Stand
                 Console.WriteLine("Die folgenden Änderungen werden in einer neuen Version hochgeladen. Bitte bestätigen mit 'y'.");
-                TextCompare textComparer = new(version.Text, newVersion.Text);
+                TextCompare textComparer = new TextCompare(version.Text, newVersion.Text);
                 Console.WriteLine("  Hinzugefügt:");
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("    " + textComparer.VergleicheObjekte().added);

@@ -2,16 +2,11 @@
 
 namespace Client
 {
-    public class TextCompare(string text1, string text2)
+    public class TextCompare(string oldText, string newText)
     {
-        /*
-        möglicher Aufruf:
-        TextCompare textComparer = new(text1, text2);
-        textComparer.VergleicheObjekte();
-        */
 
-        private readonly string[] OldText = text1.Split('\n');
-        private readonly string[] newText = text2.Split('\n');
+        private readonly string[] OldText = oldText.Split('\n');
+        private readonly string[] newText = newText.Split('\n');
 
         public (string added, string removed) VergleicheObjekte()
         {

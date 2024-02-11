@@ -1,14 +1,12 @@
 ﻿using Commons.Models;
-using System;
-using System.Drawing;
 using System.Net;
 using System.Net.Http.Headers;
 
 namespace Client
 {
-    class Program
+    public class Program
     {
-        static HttpClient client = new HttpClient();
+        static readonly HttpClient client = new();
 
         static async Task<Uri> CreateVersionAsync(VersionObject version)
         {
@@ -101,17 +99,19 @@ namespace Client
                 new MediaTypeWithQualityHeaderValue("application/json"));
 
             Console.WriteLine("Hallo zum GitProjektWHS! Für eine Liste aller Befehle bitte 'help' eingeben.");
-
-            HandleUserInput().Wait();
+            while (true)
+            {
+                var userInput = Console.ReadLine();
+                HandleUserInput(userInput).Wait();
+            }
         }
 
-        private static async Task HandleUserInput()
+        public static async Task HandleUserInput(string piUserInput)
         {
             // Warte auf Befehlseingabe
-            var userInput = Console.ReadLine();
 
             // Verarbeite Befehl
-            switch (userInput)
+            switch (piUserInput)
             {
                 case "savefile":
                     await SaveFileAsync();
@@ -124,6 +124,9 @@ namespace Client
                     break;
                 case "addfile":
                     await AddFileAsync();
+                    break;
+                case "addrepo":
+                    await AddRepoAsync();
                     break;
                 case "resetfile":
                     await ResetFileAsync();
@@ -138,6 +141,7 @@ namespace Client
                                       "  getfile          Holen der neuesten Version einer Datei vom Server\n" +
                                       "  getfilewithlock  Holen der neuesten Version einer Datei mit Sperren vom Server\n" +
                                       "  addfile          Einfügen einer neuen Datei\n" +
+                                      "  addrepo          Einfügen aller Dateien aus einem Ordner\n" +
                                       "  resetfile        Zurücksetzen einer Datei auf eine alte Version\n" +
                                       "  edittag          Kennzeichnen einer Version mit einem Tag\n" +
                                       "  help             Befehle auflisten");
@@ -147,8 +151,6 @@ namespace Client
                     break;
             }
 
-            // Warte erneut auf Befehlseingabe
-            await HandleUserInput();
         }
 
         private static async Task GetFileAsyns()
@@ -313,7 +315,7 @@ namespace Client
                     Console.WriteLine("Die angegebene Datei ist gesperrt. Möchtest du sie entsperren, um sie zu bearbeiten? Bitte bestätigen mit 'y'.");
                     if (Console.ReadLine() != "y")
                     {
-                        Console.WriteLine("Die neue VErsion wurde nicht hochgeladen.");
+                        Console.WriteLine("Die neue Version wurde nicht hochgeladen.");
                         return;
                     }
                     file.Locked = false;
@@ -324,11 +326,25 @@ namespace Client
                 var filePath = Console.ReadLine();
 
                 // Lese neue Version der Datei ein
+                string filename;
+                string text;
+                try
+                {
+                    filename = Path.GetFileName(filePath);
+                    using var sr = new StreamReader(filePath);
+                    text = sr.ReadToEnd();
+                }
+                catch
+                {
+                    Console.WriteLine("Ungültiger Dateipfad");
+                    return;
+                }
+
+                // Speichere eingelesene Daten
                 VersionObject newVersion = new()
                 {
-                    // TODO: Text muss eingelesen werden
-                    Filename = "testfile",
-                    Text = "Das hier ist ein Text.\nDas hier ist die zweite Zeile."
+                    Filename = filename,
+                    Text = text
                 };
 
                 // Hole neueste Remote-Version der Datei
@@ -336,7 +352,7 @@ namespace Client
 
                 // Vergleiche neueste Remote-Version der Datei mit dem lokalen Stand
                 Console.WriteLine("Die folgenden Änderungen werden in einer neuen Version hochgeladen. Bitte bestätigen mit 'y'.");
-                TextCompare textComparer = new(version.Text, newVersion.Text);
+                TextCompare textComparer = new TextCompare(version.Text, newVersion.Text);
                 Console.WriteLine("  Hinzugefügt:");
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("    " + textComparer.VergleicheObjekte().added);
@@ -381,12 +397,26 @@ namespace Client
             Console.WriteLine("Bitte gib den Pfad der Datei an, die du hochladen möchtest.");
             var filePath = Console.ReadLine();
 
-            // Lese neue Version der Datei ein
+            // Lese Datei ein
+            string filename;
+            string text;
+            try
+            {
+                filename = Path.GetFileName(filePath);
+                using var sr = new StreamReader(filePath);
+                text = sr.ReadToEnd();
+            }
+            catch
+            {
+                Console.WriteLine("Ungültiger Dateipfad");
+                return;
+            }
+
+            // Speichere eingelesene Daten
             VersionObject newVersion = new()
             {
-                // TODO: Text muss eingelesen werden
-                Filename = "testfile",
-                Text = "this is the text.\nSecond line"
+                Filename = filename,
+                Text = text
             };
 
             // Lade initiale Version der Datei hoch und gib sie zurück
@@ -406,6 +436,69 @@ namespace Client
             // Bestätigung
             Console.WriteLine("Die Datei {0} (Datei-ID: {1}) wurde in der Version {2} hochgeladen.", createdVersion.Filename, file.Id, createdVersion.Id);
         }
+
+        private static async Task AddRepoAsync()
+        {
+            // Einfügen aller Dateien aus einem Ordner
+
+            // Ordnerpfad muss eingegeben werden
+            Console.WriteLine("Bitte gib den Pfad des Ordners an, aus dem du alle Dateien hochladen möchtest.");
+            var repoPath = Console.ReadLine();
+
+            // Hole alle Dateien
+            DirectoryInfo dirInfo = new(repoPath);
+            var files = dirInfo.GetFiles();
+
+            try
+            {
+                foreach (var file in files)
+                {
+                    // Lese Datei ein
+                    string filename;
+                    string text;
+                    try
+                    {
+                        filename = Path.GetFileName(file.FullName);
+                        using var sr = new StreamReader(file.FullName);
+                        text = sr.ReadToEnd();
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Ungültiger Dateipfad");
+                        return;
+                    }
+
+                    // Speichere eingelesene Daten
+                    VersionObject newVersion = new()
+                    {
+                        Filename = filename,
+                        Text = text
+                    };
+
+                    // Lade initiale Version der Datei hoch und gib sie zurück
+                    var url = await CreateVersionAsync(newVersion);
+                    var createdVersion = await GetVersionAsync(url.PathAndQuery);
+
+                    // Erstelle neue Datei, die auf die soeben erstellte Version verweist
+                    FileObject newFile = new FileObject
+                    {
+                        VersionIds = [createdVersion.Id]
+                    };
+
+                    // Lade neue Datei hoch und gib sie zurück
+                    url = await CreateFileAsync(newFile);
+                    var createdFile = await GetFileAsync(url.PathAndQuery);
+
+                    // Bestätigung
+                    Console.WriteLine("Die Datei {0} (Datei-ID: {1}) wurde in der Version {2} hochgeladen.", createdVersion.Filename, createdFile.Id, createdVersion.Id);
+                }
+            }
+            catch
+            {
+                Console.WriteLine("Ungültiger Ordnerpfad");
+            }
+        }
+
         private static async Task ResetFileAsync()
         {
             // Hole alle Dateien vom Server und überprüfe, ob es überhautp welche gibt
@@ -482,7 +575,7 @@ namespace Client
 
                 // Vergleiche neueste Remote-Version der Datei mit dem lokalen Stand
                 Console.WriteLine("Die folgenden Änderungen werden in einer neuen Version hochgeladen. Bitte bestätigen mit 'y'.");
-                TextCompare textComparer = new(resetVersion.Text, newVersion.Text);
+                TextCompare textComparer = new(currentVersion.Text, newVersion.Text);
                 Console.WriteLine("  Hinzugefügt:");
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("    " + textComparer.VergleicheObjekte().added);

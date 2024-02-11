@@ -35,6 +35,7 @@ namespace Client.Test
                                       "  savefile         Speichern einer Datei in einer neuen Version\n" +
                                       "  getfile          Holen der neuesten Version einer Datei vom Server\n" +
                                       "  getfilewithlock  Holen der neuesten Version einer Datei mit Sperren vom Server\n" +
+                                      "  getrepo          Holen der neuesten Version aller Dateien vom Server\n" +
                                       "  addfile          Einfügen einer neuen Datei\n" +
                                       "  addrepo          Einfügen aller Dateien aus einem Ordner\n" +
                                       "  resetfile        Zurücksetzen einer Datei auf eine alte Version\n" +

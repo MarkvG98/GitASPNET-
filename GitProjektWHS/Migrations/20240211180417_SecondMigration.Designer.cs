@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GitProjektWHS.Migrations
 {
     [DbContext(typeof(VersionsContext))]
-    [Migration("20240126103419_InitialMigrations")]
-    partial class InitialMigrations
+    [Migration("20240211180417_SecondMigration")]
+    partial class SecondMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,48 +24,51 @@ namespace GitProjektWHS.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("GitProjektWHS.VersionsDatei", b =>
+            modelBuilder.Entity("Commons.Models.FileObject", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<bool>("Lock")
+                    b.Property<bool>("Locked")
                         .HasColumnType("bit");
+
+                    b.Property<string>("VersionIds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Datei");
+                    b.ToTable("Dateien");
                 });
 
-            modelBuilder.Entity("GitProjektWHS.VersionsObjekt", b =>
+            modelBuilder.Entity("Commons.Models.VersionObject", b =>
                 {
-                    b.Property<int>("ID")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<int>("DateiID")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Filename")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Inhalt")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Tag")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Version")
-                        .HasColumnType("int");
+                    b.Property<string>("Text")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("ID");
+                    b.Property<string>("Timestamp")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("Versions");
+                    b.HasKey("Id");
+
+                    b.ToTable("Versionen");
                 });
 #pragma warning restore 612, 618
         }

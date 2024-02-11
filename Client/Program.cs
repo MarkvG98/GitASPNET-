@@ -6,7 +6,7 @@ using System.Net.Http.Headers;
 
 namespace Client
 {
-    class Program
+    public class Program
     {
         static HttpClient client = new HttpClient();
 
@@ -101,17 +101,19 @@ namespace Client
                 new MediaTypeWithQualityHeaderValue("application/json"));
 
             Console.WriteLine("Hallo zum GitProjektWHS! Für eine Liste aller Befehle bitte 'help' eingeben.");
-
-            HandleUserInput().Wait();
+            while (true)
+            {
+                var userInput = Console.ReadLine();
+                HandleUserInput(userInput).Wait();
+            }
         }
 
-        private static async Task HandleUserInput()
+        public static async Task HandleUserInput(string piUserInput)
         {
             // Warte auf Befehlseingabe
-            var userInput = Console.ReadLine();
 
             // Verarbeite Befehl
-            switch (userInput)
+            switch (piUserInput)
             {
                 case "savefile":
                     await SaveFileAsync();
@@ -147,8 +149,6 @@ namespace Client
                     break;
             }
 
-            // Warte erneut auf Befehlseingabe
-            await HandleUserInput();
         }
 
         private static async Task GetFileAsyns()

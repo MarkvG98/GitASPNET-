@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Commons", "Commons\Commons.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "Client\Client.csproj", "{A13B13E5-7D2C-4785-8344-F793DEBCD072}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client.Test", "Client.Test\Client.Test.csproj", "{4F51EDE2-42A6-45E2-A6C3-3261E12CB34B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client.Test", "Client.Test\Client.Test.csproj", "{4F51EDE2-42A6-45E2-A6C3-3261E12CB34B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitProjektWHS.Test", "GitProjektWHS.Test\GitProjektWHS.Test.csproj", "{1BF5F291-2C7B-4260-9413-B9DC363DBAF0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{4F51EDE2-42A6-45E2-A6C3-3261E12CB34B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F51EDE2-42A6-45E2-A6C3-3261E12CB34B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F51EDE2-42A6-45E2-A6C3-3261E12CB34B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BF5F291-2C7B-4260-9413-B9DC363DBAF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BF5F291-2C7B-4260-9413-B9DC363DBAF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BF5F291-2C7B-4260-9413-B9DC363DBAF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BF5F291-2C7B-4260-9413-B9DC363DBAF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

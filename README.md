@@ -30,6 +30,9 @@ getfilewithlock
 # Einfügen einer neuen Datei
 addfile
 
+# Einfügen aller Dateien aus einem Ordner
+addrepo
+
 # Zurücksetzen einer Datei auf eine alte Version
 resetfile
 

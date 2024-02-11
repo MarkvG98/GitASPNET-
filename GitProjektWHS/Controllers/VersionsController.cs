@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+﻿using GitProjektWHS.Models;
+using Commons.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GitProjektWHS.Controllers
 {
@@ -14,57 +16,87 @@ namespace GitProjektWHS.Controllers
         {
             _db = context;
         }
-       
-        [HttpPost] //create
-        public IActionResult CreateVersionsObjekt(VersionsDatei piObjekt)
-        {
-            _db.Datei.Add(piObjekt);
-            _db.SaveChanges();
 
-            return CreatedAtAction("GetObjekt", new { id = piObjekt.Id}, piObjekt);
-        }
-
+        // GET: api/Versions
         [HttpGet]
-        public IActionResult GetVersionsObjekt(int piId)
+        public async Task<ActionResult<IEnumerable<VersionObject>>> GetVersions()
         {
-            var versionsDateiFromDb = _db.Datei.SingleOrDefault(b => b.Id == piId);
-
-            if (versionsDateiFromDb == null)
-            {
-                return NotFound();
-            }
-            return Ok(versionsDateiFromDb);
+            return await _db.Versionen.ToListAsync();
         }
 
-        [HttpPut]
-        public IActionResult UpdateVersionObjekt(VersionsDatei piObjekt)
+        // GET: api/Versions/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<VersionObject>> GetVersion(long id)
         {
-            var versionsDateiFromDb = _db.Datei.SingleOrDefault(b => b.Id == piObjekt.Id);
-            if (versionsDateiFromDb == null)
-            {
-                return NotFound();
-            }
-            versionsDateiFromDb.Lock = piObjekt.Lock;
+            var version = await _db.Versionen.FindAsync(id);
 
-            _db.SaveChanges();
-
-            return Ok(piObjekt.Lock ? "Objekt geperrt" : "Objekt entsperrt");
-        }
-
-        [HttpDelete]
-        public IActionResult DeleteVersionsObjekt(VersionsDatei piObjekt)
-        {
-            var versionsDateiFromDb = _db.Datei.SingleOrDefault(b => b.Id == piObjekt.Id);
-            if (versionsDateiFromDb == null)
+            if (version == null)
             {
                 return NotFound();
             }
 
-            _db.Remove(piObjekt);
-            _db.SaveChanges();
-
-            return Ok();
+            return version;
         }
 
+        // PUT: api/Versions/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutVersion(long id, VersionObject version)
+        {
+            if (id != version.Id)
+            {
+                return BadRequest();
+            }
+
+            _db.Entry(version).State = EntityState.Modified;
+
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!VersionExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return Ok(version);
+        }
+
+        // POST: api/Versions
+        [HttpPost]
+        public async Task<ActionResult<VersionObject>> PostVersion(VersionObject version)
+        {
+            _db.Versionen.Add(version);
+            await _db.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetVersion), new { id = version.Id }, version);
+        }
+
+        // DELETE: api/Versions/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteVersion(long id)
+        {
+            var version = await _db.Versionen.FindAsync(id);
+            if (version == null)
+            {
+                return NotFound();
+            }
+
+            _db.Versionen.Remove(version);
+            await _db.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool VersionExists(long id)
+        {
+            return _db.Versionen.Any(e => e.Id == id);
+        }
     }
 }

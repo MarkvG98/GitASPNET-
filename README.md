@@ -30,13 +30,13 @@ getrepo
 # Holen der neuesten Version einer Datei mit Sperren vom Server
 getfilewithlock
 
-# Einf�gen einer neuen Datei
+# Einfügen einer neuen Datei
 addfile
 
-# Einf�gen aller Dateien aus einem Ordner
+# Einfügen aller Dateien aus einem Ordner
 addrepo
 
-# Zur�cksetzen einer Datei auf eine alte Version
+# Zurücksetzen einer Datei auf eine alte Version
 resetfile
 
 # Kennzeichnen einer Version mit einem Tag
@@ -51,9 +51,9 @@ help
 In der Paket-Manager-Konsole:
 
 ```bash
-# Datenbankstruktur�nderungen erfassen
+# Datenbankstrukturänderungen erfassen
 Add-Migration
 
-# Datenbankstruktur�nderungen anwenden 
+# Datenbankstrukturänderungen anwenden 
 Update-Database
 ```

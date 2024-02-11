@@ -1,4 +1,5 @@
 ﻿using Commons.Models;
+using System;
 using System.Net;
 using System.Net.Http.Headers;
 
@@ -122,6 +123,9 @@ namespace Client
                 case "getfilewithlock":
                     await GetFileWithLockAsync();
                     break;
+                case "getrepo":
+                    await GetRepoAsync();
+                    break;
                 case "addfile":
                     await AddFileAsync();
                     break;
@@ -140,6 +144,7 @@ namespace Client
                                       "  savefile         Speichern einer Datei in einer neuen Version\n" +
                                       "  getfile          Holen der neuesten Version einer Datei vom Server\n" +
                                       "  getfilewithlock  Holen der neuesten Version einer Datei mit Sperren vom Server\n" +
+                                      "  getrepo          Holen der neuesten Version aller Dateien vom Server\n" +
                                       "  addfile          Einfügen einer neuen Datei\n" +
                                       "  addrepo          Einfügen aller Dateien aus einem Ordner\n" +
                                       "  resetfile        Zurücksetzen einer Datei auf eine alte Version\n" +
@@ -269,6 +274,47 @@ namespace Client
 
                 // Bestätigung
                 Console.WriteLine("Die Datei {0} (Datei-ID: {1}) wurde in Version {2} heruntergeladen.", version.Filename, file.Id, version.Id);
+            }
+            else
+            {
+                // Hinweis
+                Console.WriteLine("Es gibt noch keine Dateien, die du herunterladen könntest. Lege mit 'addfile' eine Neue an.");
+            }
+        }
+
+        private static async Task GetRepoAsync()
+        {
+            // Holen der neuesten Version aller Dateien vom Server
+
+            // Hole alle Dateien vom Server und überprüfe, ob es überhautp welche gibt
+            var remoteFiles = await GetFilesAsync();
+            if (remoteFiles.Length != 0)
+            {
+                // Speicherort eingeben
+                Console.WriteLine("In welchem Ordner sollen die Dateien gespeichert werden?");
+                var filePath = Console.ReadLine();
+
+                // Gib alle Dateien, aktuelle Dateinamen und Versions-IDs aus
+                foreach (var remoteFile in remoteFiles)
+                {
+                    var remoteVersion = await GetVersionAsync("api/Versions/" + remoteFile.VersionIds.Max());
+
+                    // Erstelle die Datei samt Inhalt
+                    try
+                    {
+                        File.WriteAllText(filePath + "\\" + remoteVersion.Filename, remoteVersion.Text);
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Ungültiger Ordnerpfad");
+                        return;
+                    }
+
+                    // Bestätigung
+                    Console.WriteLine("  Die Datei {0} (Datei-ID: {1}) wurde in Version {2} heruntergeladen.", remoteVersion.Filename, remoteFile.Id, remoteVersion.Id);
+                }
+                // Bestätigung
+                Console.WriteLine("Alle Dateien erfolgreich heruntergeladen");
             }
             else
             {

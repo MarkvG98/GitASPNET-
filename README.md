@@ -24,16 +24,19 @@ savefile
 # Holen der neuesten Version einer Datei vom Server
 getfile
 
+# Holen der neuesten Version aller Dateien vom Server
+getrepo
+
 # Holen der neuesten Version einer Datei mit Sperren vom Server
 getfilewithlock
 
-# Einfügen einer neuen Datei
+# EinfÃ¼gen einer neuen Datei
 addfile
 
-# Einfügen aller Dateien aus einem Ordner
+# EinfÃ¼gen aller Dateien aus einem Ordner
 addrepo
 
-# Zurücksetzen einer Datei auf eine alte Version
+# ZurÃ¼cksetzen einer Datei auf eine alte Version
 resetfile
 
 # Kennzeichnen einer Version mit einem Tag
@@ -48,9 +51,9 @@ help
 In der Paket-Manager-Konsole:
 
 ```bash
-# Datenbankstrukturänderungen erfassen
+# DatenbankstrukturÃ¤nderungen erfassen
 Add-Migration
 
-# Datenbankstrukturänderungen anwenden 
+# DatenbankstrukturÃ¤nderungen anwenden 
 Update-Database
 ```

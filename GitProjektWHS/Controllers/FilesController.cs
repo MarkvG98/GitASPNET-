@@ -64,7 +64,7 @@ namespace GitProjektWHS.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(datei);
         }
 
         // POST: api/Files

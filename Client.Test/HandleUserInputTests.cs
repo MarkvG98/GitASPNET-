@@ -36,6 +36,7 @@ namespace Client.Test
                                       "  getfile          Holen der neuesten Version einer Datei vom Server\n" +
                                       "  getfilewithlock  Holen der neuesten Version einer Datei mit Sperren vom Server\n" +
                                       "  addfile          Einfügen einer neuen Datei\n" +
+                                      "  addrepo          Einfügen aller Dateien aus einem Ordner\n" +
                                       "  resetfile        Zurücksetzen einer Datei auf eine alte Version\n" +
                                       "  edittag          Kennzeichnen einer Version mit einem Tag\n" +
                                       "  help             Befehle auflisten";
